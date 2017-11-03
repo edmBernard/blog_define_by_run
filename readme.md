@@ -1,6 +1,12 @@
+Idées de titres : 
+- Deeplearning Define-by-run framework (for dummies)
+- Deeplearning Dynamic Neural Network (for dummies)
+
 # Define by run (Dynamic network)
 
+
 as a new deeplearning user why imperative framework it seem identical on tutorial but more example bigger community quick answer etc ...
+With the pre release of Eager(Tensorflow) this week and the release of Gluon(Mxnet) previous month. We could ask why so much hype on imperativ framework/API
 
 commentary on github :
 why gluon and not keras 2 ?
