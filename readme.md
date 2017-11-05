@@ -226,9 +226,6 @@ More in network design it's possible to use regular python loop, condition etc..
 As a example for framework agnostic I will show you 
 exemple between pytorch and gluon for shared weight
 
-
-
-
 # Easier learn (not so sure)
 don't need to understand function like the fit function in Mxnet
 
@@ -244,6 +241,12 @@ The true imperative advantage
 example shared weight with fc specialisation
 
 
+
+## Conclusion 
+In my opinion, the hype on define-by-run framework come from a mixed between a good API design and a better flexibility. A good API allow to easily understand what happen even if you don't really know the framework, I place Keras with a really good API too. 
+
+This good API combine with a better control on what happen in training loop and what happen in network allow.
+So yeah there is so much hype on imperative framework. Gains from this kind of framework are not visible at first glance. The better flexibility bring by Chainer, Pytorch or Gluon allow to design complexe network easily, with better debugging and with more control.
 
 
 
