@@ -224,6 +224,72 @@ In imperative framework, you can use regular python condition, loop control flow
 Network with variablility for example pooling with different pooling policy in fonction of input size.
 And in my day to day work I don't use RNN, imagine if you have these kind of network to play with this is a huge advantage.
 
+A small example to illustrate that.
+Begin with this statement, you want to extract attribut from face. You want to extract gender and glass. Is it a male or a female and Is it wearing glass.
+But your biggest problem is you don't have database with both label. You only have a database with gender and one with glass.
+One of the way to solve this is to create a root network shared between both and define specialize layer for each funcionnality.
+This method reduce the weight to have two full network in your prediction flow.
+
+#### Network definition
+```python
+# definition of your root network
+net_shared = gluon.nn.Sequential()
+with net_shared.name_scope():
+    net_shared.add(gluon.nn.Dense(128, activation='relu'))
+    net_shared.add(gluon.nn.Dense(64, activation='relu'))
+
+# Definition of the network for Gender 
+net_mod1 = gluon.nn.Sequential()
+with net_mod1.name_scope():
+    net_mod1.add(gluon.nn.Dense(num_outputs))
+
+# Definition of the network for Glass
+net_mod2 = gluon.nn.Sequential()
+with net_mod2.name_scope():
+    net_mod2.add(gluon.nn.Dense(num_outputs))
+
+# Initialize all three network
+net_shared.collect_params().initialize(mx.init.Uniform(scale=0.1), ctx=ctx)
+net_mod1.collect_params().initialize(mx.init.Uniform(scale=0.1), ctx=ctx)
+net_mod2.collect_params().initialize(mx.init.Uniform(scale=0.1), ctx=ctx)
+
+# Optimiser Initialisation
+trainer_shared = gluon.Trainer(net_shared.collect_params(), 'sgd', {'learning_rate': 0.05})
+trainer_mod1 = gluon.Trainer(net_mod1.collect_params(), 'sgd', {'learning_rate': 0.05})
+trainer_mod2 = gluon.Trainer(net_mod2.collect_params(), 'sgd', {'learning_rate': 0.05})
+
+# Loss definition
+softmax_cross_entropy_1 = gluon.loss.SoftmaxCrossEntropyLoss()
+softmax_cross_entropy_2 = gluon.loss.SoftmaxCrossEntropyLoss()
+```
+
+#### Training step
+After that in your training iteration you only have to switch between these to flow, If data come from Gender iterator or from Glass iterator.
+
+```python
+# Training for Gender
+with autograd.record():
+    output = net_mod2(net_shared(data))
+    loss = softmax_cross_entropy_2(output, label)
+    loss.backward()
+trainer_shared.step(batch_size)
+trainer_mod2.step(batch_size)
+
+# Training for Glass
+with autograd.record():
+    output = net_mod2(net_shared(data))
+    loss = softmax_cross_entropy_2(output, label)
+    loss.backward()
+trainer_shared.step(batch_size)
+trainer_mod2.step(batch_size)
+```
+
+
+
+you want to try to do hand writen digit recognition. But you only have two databases 
+
+
+
 ### Less hidden things
 
 This point is more a API design than an advantage of imperative framework. 
