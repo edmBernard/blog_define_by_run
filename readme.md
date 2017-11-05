@@ -33,6 +33,8 @@ Easier to debug neural network is the main point use in comparison between imper
 debugging on MNIST we don't understand the advantage of debugging. This aspect in my opinion only appear with complexe structure or when the issu was not straigth forward. For example, if your network don't converge it's easier to inspect gradient, it's easier to check output dimension.
 These issues don't really block on small network more these issues don't appear if you use existing working network. As an end user, these issue never appear as you don't try to adjust layer structure change hidden layer number of feature etc ...
 
+network can infer input feature dimension.
+
 example mxnet vs gluon
 We use the mxnet and gluon with their mid level API to have a better comparison in the syntaxe. This is important to note as mxnet and gluon are come from the same framework and the same team Mxnet network definition can be use in Gluon and Gluon network can be freeze to be used with Mxnet and save on disk.
 
@@ -223,6 +225,24 @@ More in network design it's possible to use regular python loop, condition etc..
 
 As a example for framework agnostic I will show you 
 exemple between pytorch and gluon for shared weight
+
+
+
+# Less hidden things (in apparence)
+du design and network compilation
+
+# Easier learn
+don't need to understand function like the fit function in Mxnet
+
+## less hidden thing
+you understand what you do. Maybe harder to run your first network but easier to extend them
+
+## More flexibility
+The true imperative advantage
+
+example shared weight with fc specialisation
+
+
 
 
 
