@@ -58,6 +58,8 @@ example mxnet vs gluon
 We use the mxnet and gluon with their mid level API to have a better comparison in the syntaxe. 
 This is important to note as mxnet and gluon are come from the same framework and the same team Mxnet network definition can be use in Gluon and Gluon network can be freeze to be used with Mxnet and save on disk.
 
+You can explore your network step by step and monitor what happen to each layer.
+
 ### Network definition
 
 ```python
