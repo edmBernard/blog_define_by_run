@@ -212,11 +212,17 @@ for e in range(10):
 Keras do lots of work on their API design to be easy to use. 
 Callable network is one the feature that allow an easy network creation. 
 And this feature is de facto in define-by-run framework. 
-Define-by-run framework add on top of this feature the ability to easily monitoring what happen in these network.
-(network in concurence)
-Shared layer triplet loss network specification
-Shared root network with specialized network 
+Define-by-run framework add on top of this feature the ability to easily monitoring what happen in these networks.
+
+On symbolic framework there is a network compilation step. 
+This step can introduce complexity in network construction. 
+For example, if you try to define shared layer, like in siamese network. 
+You need to think of where are store your weight, how there are initialized, how there are updated. 
+Otherwise, your final network will not be what you attend. 
+
+In imperative framework, you can use regular python condition, loop control flow.
 Network with variablility for example pooling with different pooling policy in fonction of input size.
+And in my day to day work I don't use RNN, imagine if you have these kind of network to play with this is a huge advantage.
 
 ### Less hidden things
 
