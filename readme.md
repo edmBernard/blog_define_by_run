@@ -40,6 +40,8 @@ I will use them to illustrate my point of view;
 If you already now these framework you can directly switch to the end.
 So lets begin with an MNIST example :)
 
+Some of these point don't come from imperative particularity but there are de facto for them.
+For example, Callable network is possible in Keras, It's one feature that allow an easy network creation.
 
 ## Debugging
 
@@ -207,10 +209,14 @@ for e in range(10):
 ```
 ## Flexibility
 
-easy to combine network
-more flexibility
-easier to create complexe architecture (network in concurence)
+Keras do lots of work on their API design to be easy to use. 
+Callable network is one the feature that allow an easy network creation. 
+And this feature is de facto in define-by-run framework. 
+Define-by-run framework add on top of this feature the ability to easily monitoring what happen in these network.
+(network in concurence)
 Shared layer triplet loss network specification
+Shared root network with specialized network 
+Network with variablility for example pooling with different pooling policy in fonction of input size.
 
 ### Less hidden things
 
@@ -268,6 +274,10 @@ example shared weight with fc specialisation
 
 
 
+
+
+
+
 ## Conclusion 
 In my opinion, the hype on define-by-run framework come from a mixed between a good API design and a better flexibility. 
 A good API allow to easily understand what happen even if you don't really know the framework, I place Keras with a really good API too. 
@@ -276,6 +286,9 @@ This good API combine with a better control on what happen in training loop and 
 So yeah there is so much hype on imperative framework. 
 Gains from this kind of framework are not visible at first glance. 
 The better flexibility bring by Chainer, Pytorch or Gluon allow to design complexe network easily, with better debugging and with more control.
+
+And cherry on the cake, Chainer, PyTorch and Gluon have similar API (inspired by Chainer).
+If you learn one of them it's simple to understand, test other without effort.
 
 easy to learn hard to master 
 a bit harder to learn easy to master
