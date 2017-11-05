@@ -27,16 +27,33 @@ def get_lenet():
     return lenet
 
 def main():
+    # Get data
     mnist = mx.test_utils.get_mnist()    
     batch_size = 100
     train_iter = mx.io.NDArrayIter(mnist['train_data'], mnist['train_label'], batch_size, shuffle=True)
     val_iter = mx.io.NDArrayIter(mnist['test_data'], mnist['test_label'], batch_size)
 
-    mod = mx.mod.Module(context=ctx, symbol=m)
-    mod.bind(data_shapes=[('data', (batch_size, 3, 32, 32))], label_shapes=[('softmax_label', (batch_size,))])
+    # Define Network
+    mod = mx.mod.Module(context=mx.cpu(), symbol=get_lenet())
+    mod.bind(data_shapes=[('data', (batch_size, 1, 28, 28))], label_shapes=[('softmax_label', (batch_size,))])
 
+    # Initialize
     mod.init_params(initializer=mx.init.Xavier(rnd_type='uniform'))
     mod.init_optimizer(optimizer='sgd', optimizer_params=(('learning_rate', 0.1), ))
 
+    # Create evaluation metric
+    metric = mx.metric.create('acc')
+
+    # Train
+    for j in range(10):
+        train_iter.reset()
+        metric.reset()
+        for batch in train_iter:
+            mod.forward(batch, is_train=True) 
+            mod.update_metric(metric, batch.label)
+            mod.backward()              
+            mod.update()
+        print('Epoch %d, Training %s' % (j, metric.get()))
+        
 if __name__ == '__main__':
     main()

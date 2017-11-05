@@ -27,18 +27,16 @@ def get_lenet():
     return lenet
 
 def main():
+    # Get data
     mnist = mx.test_utils.get_mnist()    
     batch_size = 100
     train_iter = mx.io.NDArrayIter(mnist['train_data'], mnist['train_label'], batch_size, shuffle=True)
     val_iter = mx.io.NDArrayIter(mnist['test_data'], mnist['test_label'], batch_size)
 
-
-
-
-    # create a trainable module on CPU 0
+    # Define Network
     lenet_model = mx.mod.Module(symbol=get_lenet(), context=mx.cpu())
 
-    # train with the same
+    # Bind, Initialize, Train
     lenet_model.fit(train_iter,
                     eval_data=val_iter,
                     optimizer='sgd',
