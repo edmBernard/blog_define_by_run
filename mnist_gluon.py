@@ -21,6 +21,7 @@ def get_lenet():
         net.add(gluon.nn.Flatten())
         net.add(gluon.nn.Dense(512, activation="relu"))
         net.add(gluon.nn.Dense(10))
+        # in Gluon loss functions are separated from network to have a better control
     return net
 
 def main():

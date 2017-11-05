@@ -228,14 +228,15 @@ exemple between pytorch and gluon for shared weight
 
 
 
-# Less hidden things (in apparence)
-du design and network compilation
 
-# Easier learn
+# Easier learn (not so sure)
 don't need to understand function like the fit function in Mxnet
 
 ## less hidden thing
+# Less hidden things (in apparence maybe more magic)
+du design and network compilation
 you understand what you do. Maybe harder to run your first network but easier to extend them
+easier to made complexe structure
 
 ## More flexibility
 The true imperative advantage
@@ -244,5 +245,17 @@ example shared weight with fc specialisation
 
 
 
+
+
+easy to learn hard to master 
+a bit harder to learn easy to master
+
+easy to do easy thing
+hard to do hard thing
+
+a bit harder to do easy thing
+easier to do hard thing
+
+Gluon, pytorch
 
 
