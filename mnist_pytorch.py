@@ -18,10 +18,7 @@ class Net(nn.Module):
 
     def forward(self, x):
         x = F.max_pool2d(F.relu(self.conv1(x)), kernel_size=2, stride=2) 
-        x = self.conv2(x)
-        x = F.relu(x)
-        x = F.max_pool2d(x, kernel_size=2, stride=2)
-
+        x = F.max_pool2d(F.relu(self.conv2(x)), kernel_size=2, stride=2)
         x = x.view(-1, 800)
         x = F.relu(self.fc1(x))
         x = self.fc2(x)

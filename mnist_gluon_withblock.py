@@ -13,25 +13,19 @@ class Net(gluon.Block):
     def __init__(self, **kwargs):
         super(Net, self).__init__(**kwargs)
         with self.name_scope():
-            self.conv1 = gluon.nn.Conv2D(channels=20, kernel_size=5, activation='relu')
+            self.conv1 = gluon.nn.Conv2D(channels=20, kernel_size=5)
             self.pool1 = gluon.nn.MaxPool2D(pool_size=2, strides=2)
-            self.conv2 = gluon.nn.Conv2D(channels=50, kernel_size=5, activation='relu')
+            self.conv2 = gluon.nn.Conv2D(channels=50, kernel_size=5)
             self.pool2 = gluon.nn.MaxPool2D(pool_size=2, strides=2)
-            self.fc1 = gluon.nn.Dense(512, activation="relu")
+            self.fc1 = gluon.nn.Dense(512)
             self.fc2 = gluon.nn.Dense(10)
 
     def forward(self, x):
-        x = self.pool1(self.conv1(x))
-        x = self.pool2(self.conv2(x))
+        x = self.pool1(F.relu(self.conv1(x)))
+        x = self.pool2(F.relu(self.conv2(x)))
         x = x.reshape((0, -1))
-        x = self.fc1(x)
+        x = F.relu(self.fc1(x))
         x = self.fc2(x)
-        # x = self.pool1(F.relu(self.conv1(x)))
-        # x = self.pool2(F.relu(self.conv2(x)))
-        # x = x.reshape((0, -1))
-        # x = F.relu(self.fc1(x))
-        # x = F.relu(self.fc2(x))
-        # x = self.fc3(x)
         return x
 
 
