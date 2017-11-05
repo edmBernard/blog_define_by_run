@@ -284,7 +284,7 @@ trainer_shared.step(batch_size)
 trainer_mod2.step(batch_size)
 ```
 
-
+As `net_shared` is exactly the same network between both path, you don't have issues on "Does your weights are the same after compilation ?", "Does  weights are correctly updated ?".
 
 you want to try to do hand writen digit recognition. But you only have two databases 
 
