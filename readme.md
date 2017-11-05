@@ -19,6 +19,14 @@ With the release of Gluon, I see a commentaries on why again a new API why don't
 
 I will try to put the light on some points why there is so much hype on imperative framework/API.
 
+I will show you a full example on three framework Mxnet, Gluon and Pytorch. 
+Full code can be found [here]()
+I will use them to illustrate my point of view;
+
+If you already now these framework you can directly switch to the end.
+So lets begin with an MNIST example :)
+
+
 ## Debugging
 
 Easier to debug neural network is the main point use in comparison between imperative and symbolic framework. But for new user, when we test 
@@ -26,7 +34,156 @@ debugging on MNIST we don't understand the advantage of debugging. This aspect i
 These issues don't really block on small network more these issues don't appear if you use existing working network. As an end user, these issue never appear as you don't try to adjust layer structure change hidden layer number of feature etc ...
 
 example mxnet vs gluon
+We use the mxnet and gluon with their mid level API to have a better comparison in the syntaxe. This is important to note as mxnet and gluon are come from the same framework and the same team Mxnet network definition can be use in Gluon and Gluon network can be freeze to be used with Mxnet and save on disk.
 
+### Network definition
+
+```python
+# Mxnet
+def get_lenet():
+    data = mx.sym.var('data')
+    # first conv layer
+    conv1 = mx.sym.Convolution(data=data, kernel=(5,5), num_filter=20)
+    relu1 = mx.sym.Activation(data=conv1, act_type="relu")
+    pool1 = mx.sym.Pooling(data=relu1, pool_type="max", kernel=(2,2), stride=(2,2))
+    # second conv layer
+    conv2 = mx.sym.Convolution(data=pool1, kernel=(5,5), num_filter=50)
+    relu2 = mx.sym.Activation(data=conv2, act_type="relu")
+    pool2 = mx.sym.Pooling(data=relu2, pool_type="max", kernel=(2,2), stride=(2,2))
+    # full connected layer
+    flatten = mx.sym.flatten(data=pool2)
+    fc1 = mx.symbol.FullyConnected(data=flatten, num_hidden=512)
+    relu3 = mx.sym.Activation(data=fc1, act_type="relu")
+    fc2 = mx.sym.FullyConnected(data=relu3, num_hidden=10)
+    # softmax loss
+    lenet = mx.sym.SoftmaxOutput(data=fc2, name='softmax')
+    return lenet
+```
+
+```python
+# Gluon
+def get_lenet():
+    net = gluon.nn.Sequential()
+    with net.name_scope():
+        # first conv layer
+        net.add(gluon.nn.Conv2D(channels=20, kernel_size=5, activation='relu'))
+        net.add(gluon.nn.MaxPool2D(pool_size=2, strides=2))
+        # second conv layer
+        net.add(gluon.nn.Conv2D(channels=50, kernel_size=5, activation='relu'))
+        net.add(gluon.nn.MaxPool2D(pool_size=2, strides=2))
+        # full connected layer
+        net.add(gluon.nn.Flatten())
+        net.add(gluon.nn.Dense(512, activation="relu"))
+        net.add(gluon.nn.Dense(10))
+        # softmax loss
+        # in Gluon loss functions are separated from network to have a better control
+    return net
+```
+
+petit paragraphe pour expliquer
+
+### Initialisation and Optimiser definition
+
+On the high level Mxnet API. the fit function hide lot's of things. the following "two" line allow to compile network, initialise it, define optimiser, evaluation metric etc...
+```python
+# Mxnet High level API 
+# create a trainable module on CPU 0
+lenet_model = mx.mod.Module(symbol=get_lenet(), context=mx.cpu())
+
+# train with the same
+lenet_model.fit(train_iter,
+                eval_data=val_iter,
+                optimizer='sgd',
+                optimizer_params={'learning_rate':0.1},
+                eval_metric='acc',
+                batch_end_callback = mx.callback.Speedometer(batch_size, 100),
+                num_epoch=10)
+```
+
+For a more accurate comparison we will use the slightly low level API for Mxnet.
+The relatively low level on Gluon is a design choice to keep control on what you do.
+
+```python
+# Mxnet
+mod = mx.mod.Module(context=ctx, symbol=m)
+mod.bind(data_shapes=[('data', (batch_size, 3, 32, 32))],
+            label_shapes=[('softmax_label', (batch_size,))])
+
+mod.init_params(initializer=mx.init.Xavier(rnd_type='uniform'))
+mod.init_optimizer(optimizer='sgd', 
+                    optimizer_params=(('learning_rate', 0.1), ))
+```
+
+```python
+# Gluon
+lenet_model.collect_params().initialize(mx.init.Xavier(magnitude=2.24), ctx=mx.cpu())
+
+softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
+trainer = gluon.Trainer(lenet_model.collect_params(), 'sgd', {'learning_rate': 0.1})
+```
+
+```python
+# Mxnet
+# Create evaluation metric
+metric = mx.metric.create('acc')
+
+# train
+for j in range(10):
+    train_iter.reset()
+    metric.reset()
+    for batch in train_iter:
+        model.forward(batch, is_train=True) 
+        model.update_metric(metric, batch.label)
+        model.backward()              
+        model.update()
+    print('Epoch %d, Training %s' % (j, metric.get()))
+```
+
+```python
+# Gluon
+# Create evaluation metric don't forget that softmax was not in the model definition
+# For the evaluation we need to add argmax at the network output
+def evaluate_accuracy(data_iterator, net):
+    acc = mx.metric.Accuracy()
+    for i, (data, label) in enumerate(data_iterator):
+        data = data.as_in_context(mx.cpu())
+        label = label.as_in_context(mx.cpu())
+        output = net(data)
+        predictions = nd.argmax(output, axis=1)
+        acc.update(preds=predictions, labels=label)
+    return acc.get()[1]
+
+# train
+smoothing_constant = .01
+for e in range(10):
+    for i, (data, label) in enumerate(train_data):
+        data = data.as_in_context(mx.cpu())
+        label = label.as_in_context(mx.cpu())
+        with autograd.record():
+            output = lenet_model(data)
+            loss = softmax_cross_entropy(output, label)
+        loss.backward()
+        trainer.step(data.shape[0])
+
+        # define a moving loss for log
+        curr_loss = nd.mean(loss).asscalar()
+        moving_loss = (curr_loss if ((i == 0) and (e == 0)) else (1 - smoothing_constant) * moving_loss + smoothing_constant * curr_loss)
+
+    test_accuracy = evaluate_accuracy(test_data, lenet_model)
+    train_accuracy = evaluate_accuracy(train_data, lenet_model)
+    print("Epoch %s. Loss: %s, Train_acc %s, Test_acc %s" % (e, moving_loss, train_accuracy, test_accuracy))
+
+```
+
+
+
+
+```python
+# Mxnet
+```
+```python
+# Gluon
+```
 ## Flexibility
 
 easy to combine network
@@ -37,6 +194,23 @@ Shared layer triplet loss network specification
 ### Less hidden things
 
 This point is more a API design than an advantage of imperative framework. But as most of them (PyTorch, Gluon) take inspiration of Chainer design they show the same level of abstraction.
+
+An example on the Mxnet high level API. The fit function is easy to use and do lot's of things. But if you want to change things inside iterations, monitor gradient or something else you need to redefine callback, metric, for that you need to now how there work etc ... that was lots of work for sometime just monitoring or debug.
+On the high level Mxnet API. the fit function hide lot's of things. the following "two" line allow to compile network, initialise it, define optimiser, evaluation metric etc...
+```python
+# Mxnet High level API 
+# create a trainable module on CPU 0
+lenet_model = mx.mod.Module(symbol=get_lenet(), context=mx.cpu())
+
+# train with the same
+lenet_model.fit(train_iter,
+                eval_data=val_iter,
+                optimizer='sgd',
+                optimizer_params={'learning_rate':0.1},
+                eval_metric='acc',
+                batch_end_callback = mx.callback.Speedometer(batch_size, 100),
+                num_epoch=10)
+```
 
 as imperative the network do what you want and what you tell it.
 not inside compilation exemple shared weight.
@@ -49,5 +223,6 @@ More in network design it's possible to use regular python loop, condition etc..
 
 As a example for framework agnostic I will show you 
 exemple between pytorch and gluon for shared weight
+
 
 
