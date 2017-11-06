@@ -1,4 +1,5 @@
 Idées de titres : 
+- Dynamic Neural Network
 - Deeplearning Define-by-run neural network (for dummies)
 - Deeplearning Define-by-run framework (for dummies)
 - Deeplearning Dynamic Neural Network (for dummies)
@@ -42,6 +43,8 @@ So lets begin with an MNIST example :)
 
 Some of these point don't come from imperative particularity but there are de facto for them.
 For example, Callable network is possible in Keras, It's one feature that allow an easy network creation.
+
+What exactly is Dynamic Neural network, "Define-by-Run" frameworks, Imperative framework.
 
 ## Debugging
 
